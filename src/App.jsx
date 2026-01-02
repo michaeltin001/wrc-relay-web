@@ -1,35 +1,46 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
+import { useState, useEffect } from 'react';
+import { getAuth, onAuthStateChanged } from "firebase/auth";
+import Login from './components/Login';
+import Scanner from './components/Scanner';
+import { submitLog } from './services/sheets';
+import { requestPermission } from './services/notifications';
 
 function App() {
-  const [count, setCount] = useState(0)
+  const [user, setUser] = useState(null);
+  
+  useEffect(() => {
+    const auth = getAuth();
+    const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
+      setUser(currentUser);
+      if (currentUser) {
+        requestPermission();
+      }
+    });
+    return () => unsubscribe();
+  }, []);
+
+  const handleScan = async (decodedText) => {
+    if (confirm(`Log Student ID: ${decodedText}?`)) {
+        alert(`Logged ID: ${decodedText}`);
+    }
+  };
 
   return (
-    <>
-      <div>
-        <a href="https://vite.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.jsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
-  )
+    <div className="App">
+      {!user ? (
+        <Login />
+      ) : (
+        <div>
+           <div style={{ padding: '20px', textAlign: 'center' }}>
+             <h2>WRC Scanner</h2>
+             <p>Welcome, {user.displayName}</p>
+             <button onClick={() => getAuth().signOut()}>Sign Out</button>
+           </div>
+           <Scanner onScanSuccess={handleScan} />
+        </div>
+      )}
+    </div>
+  );
 }
 
-export default App
+export default App;
