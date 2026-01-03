@@ -22,8 +22,7 @@ function App() {
   const handleScan = async (decodedText) => {
     if (confirm(`Log Student ID: ${decodedText}?`)) {
       try {
-        const token = user.accessToken;
-        await submitLog(decodedText, token);
+        await submitLog(decodedText);
         alert(`Logged ID: ${decodedText}`);
       } catch (error) {
         console.error(error);

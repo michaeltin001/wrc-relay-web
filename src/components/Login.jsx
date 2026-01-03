@@ -3,7 +3,6 @@ import { getAuth, signInWithPopup, GoogleAuthProvider } from "firebase/auth";
 const Login = () => {
   const auth = getAuth();
   const provider = new GoogleAuthProvider();
-  provider.addScope('https://www.googleapis.com/auth/spreadsheets');
 
   const handleLogin = async () => {
     try {
